@@ -24,55 +24,35 @@ function excelDownload(HttpService,$rootScope) {
         vm.data = [];
 
         vm.exportFromJson = function(data,fileName) {
-            //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+            //If Jata is not an object then JSON.parse will parse the JSON string in an Object
             var arrData = typeof data != 'object' ? JSON.parse(data) : data;
 
             var CSV = '';
-            //Set Report title in first row or line
-
-            CSV += '\r\n\n';
-
-            var row = "";
+            CSV += '<tr>';
 
             //This loop will extract the label from 1st index of on array
             for (var index in arrData[0]) {
 
-                //Now convert each value to string and comma-seprated
-                row += index + ',';
+                //Now convert each value to string
+                CSV += '<td>'+ index +'</td>';
             }
 
-            row = row.slice(0, -1);
-
-            //append Label row with line break
-            CSV += row + '\r\n';
+            CSV += '</tr>';
 
             //1st loop is to extract each row
             for (var i = 0; i < arrData.length; i++) {
-                var row = "";
+                CSV += '<tr>';
 
-                //2nd loop will extract each column and convert it in string comma-seprated
+                //2nd loop will extract each column and convert it in string
                 for (var index in arrData[i]) {
-                    row += '"' + arrData[i][index] + '",';
+                    CSV += '<td>'+ arrData[i][index] +'</td>';
                 }
 
-                row.slice(0, row.length - 1);
-
-                //add a line break after each row
-                CSV += row + '\r\n';
+                CSV += '</tr>';
             }
 
-            if (CSV == '') {
-                alert("Invalid data");
-                return;
-            }
-
-            //Initialize file format you want csv or xls
-            var uri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(CSV);
-
-            // Now the little tricky part.
-            // you can use either>> window.open(uri);
-            // but this will not work in some browsers
-            // or you will not get the correct file extension
+            var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>'+ CSV +'</table></body></html>'
+            var uri = 'data:application/vnd.ms-excel;base64,' + window.btoa(unescape(encodeURIComponent(template)));
 
             //this trick will generate a temp <a /> tag
             var link = document.createElement("a");
@@ -80,7 +60,7 @@ function excelDownload(HttpService,$rootScope) {
 
             //set the visibility hidden so it will not effect on your web-layout
             link.style = "visibility:hidden";
-            link.download = fileName + ".csv";
+            link.download = fileName + ".xls";
 
             //this part will append the anchor tag and remove it after automatic click
             document.body.appendChild(link);
